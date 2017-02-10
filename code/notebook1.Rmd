@@ -1,0 +1,152 @@
+---
+title: "Analyses data common garden 2015-16"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+Used populations where there were at least 4 flowering plants (similar results with at least 10)
+
+2015
+```{r, echo=FALSE}
+unique(data2015_4[1:2])
+with(data2015_4, bargraph.CI(pop,log(phen_index),err.width=0.02,ylab="Mean bud stage",cex.axis=0.8,cex.names=0.8,las=2))
+with(data2015_4, bargraph.CI(pop,most_adv,err.width=0.02,ylab="Max bud stage",cex.axis=0.8,cex.names=0.8,las=2))
+```
+Using mean bud stage
+```{r}
+m4<-lm(log(phen_index)~pop,data=data2015_4)
+
+Anova(m4) 
+```
+No differences among populations
+```{r}
+m5<-lm(log(phen_index)~pop+ori_new,data=data2015_4)
+Anova(m5) 
+```
+Differences among origins within populations
+```{r}
+anova(m4,m5)
+```
+Model with origin is better
+```{r}
+m6<-lme(log(phen_index) ~ pop, data = data2015_4, random = ~ 1|ori_new)
+Anova(m6)
+```
+No differences among populations after accounting for origin
+
+Using max bud stage
+```{r}
+m10<-lm(most_adv~pop,data=data2015_4)
+Anova(m10) 
+```
+Differences among populations
+```{r}
+m11<-lm(most_adv~pop+ori_new,data=data2015_4)
+Anova(m11) 
+```
+When including origin, differences among populations disappear
+```{r}
+anova(m10,m11)
+```
+Model with origin is better 
+```{r}
+m12<-lme(most_adv ~ pop, data = data2015_4, random = ~ 1|ori_new)
+Anova(m12)
+```
+No effect of population after accounting for origin
+
+2016
+```{r, echo=FALSE}
+unique(data2016s_4[,c(2,20)])
+with(data2016s_4, bargraph.CI(pop,stage0808,err.width=0.02,ylab="Max bud stage",cex.axis=0.8,cex.names=0.8,las=2))
+```
+
+Max bud stage
+```{r}
+m20<-lm(stage0808~pop,data=data2016s_4)
+Anova(m20) 
+```
+Differences among populations
+```{r}
+m21<-lm(stage0808~pop+ori_new,data=data2016s_4)
+Anova(m21) 
+```
+When including origin, differences among populations disappear
+```{r}
+anova(m20,m21)
+```
+Model with origin is better
+```{r}
+m22<-lme(stage0808 ~ pop, data = data2016s_4, random = ~ 1|ori_new)
+Anova(m22) 
+```
+(Almost) no effect of population after accounting for origin
+
+```{r}
+summary(m22)
+```
+
+```{r}
+with(data2016s_4, lineplot.CI(pred,stage0808,xlab="Predation",ylab="Max bud stage"))
+```
+```{r}
+m24<-lme(stage0808 ~ pred, data = data2016s_4, random = ~ 1|pop/ori_new)
+Anova(m24)
+```
+No effect of predation
+
+2016 - first, last and mean flowering day
+```{r, echo=FALSE}
+with(data2016l_calc_4, lineplot.CI(pop,first_j,err.width=0.02,type="p",xlab=NULL,
+    ylab="First flowering day",cex.axis=0.8,cex.names=0.8,las=2))
+with(data2016l_calc_4, lineplot.CI(pop,last_j,err.width=0.02,type="p",xlab=NULL,
+    ylab="Last flowering day",cex.axis=0.8,cex.names=0.8,las=2))
+with(data2016l_calc_4, lineplot.CI(pop,mean,err.width=0.02,type="p",xlab=NULL,
+    ylab="Mean flowering day",cex.axis=0.8,cex.names=0.8,las=2))
+```
+
+First flowering day
+```{r}
+m28<-lm(first_j~pop,data=data2016l_calc_4)
+Anova(m28) 
+```
+Differences among populations
+```{r}
+m29<-lm(first_j~pop+ori_new,data=data2016l_calc_4)
+Anova(m29) 
+```
+
+```{r}
+anova(m28,m29)
+```
+Model with only population is better
+```{r}
+m30<-lme(first_j ~ pop, data = data2016l_calc_4, random = ~ 1|ori_new)
+Anova(m30)
+```
+Effect of population after accounting for origin
+```{r}
+summary(m30)
+```
+Similar results with last and mean flowering day
+```{r}
+m44<-lme(first_j ~ pred, data = data2016l_calc_4, random = ~ 1|pop/ori_new)
+Anova(m44)
+```
+No effect of predation
+
+Differences among years in population mean phenology
+
+```{r, echo=FALSE}
+bargraph.CI(pop,phen,group=year,data=d1516,legend=T,err.width=0.02,
+            ylim=c(0,6),cex.names=0.8,cex.axis=0.8,ylab="Mean stage of most advanced bud",
+            main="Stage noted on 4-6 Aug 2015 and 8 Aug 2016",las=2)
+```
+```{r}
+m49<-lm(phen~year*pop,data=subset(d1516,!pop=="Bor012"&!pop=="Sve005"))
+Anova(m49)
+```
+```{r}
+summary(m49)
+```
+
